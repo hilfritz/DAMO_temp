@@ -2,47 +2,52 @@ import streamlit as st
 import yfinance as yf
 import pandas as pd
 import matplotlib.pyplot as plt
+from datetime import date
 
 # App title
-st.title("Stock Price Viewer with Moving Averages")
+st.title("📈 Stock Price Viewer with Moving Averages")
 
-# User input for ticker
-ticker = st.text_input("Enter Stock Ticker", value="AAPL")
+# Sidebar inputs
+st.sidebar.header("Configuration")
 
-# Button to refresh data
-refresh = st.button("Refresh Data")
+# Ticker input
+ticker = st.sidebar.text_input("Enter Stock Ticker", value="AAPL")
 
-@st.cache_data(ttl=300)  # Cache for 5 minutes
-def get_data(ticker):
-    return yf.download(ticker, start='2020-01-01', end='2024-01-01')
+# Date range picker (default: last 4 years)
+start_date = st.sidebar.date_input("Start Date", date(2020, 1, 1))
+end_date = st.sidebar.date_input("End Date", date(2024, 1, 1))
+
+# Refresh button
+refresh = st.sidebar.button("🔄 Refresh Data")
+
+# Cache function with 5-min TTL
+@st.cache_data(ttl=300)
+def get_data(ticker, start_date, end_date):
+    return yf.download(ticker, start=start_date, end=end_date)
+
+# Clear cache if refresh clicked
+if refresh:
+    st.cache_data.clear()
 
 # Load data
-if refresh:
-    st.cache_data.clear()  # Clear cache when refresh button clicked
+df = get_data(ticker, start_date, end_date)
 
-df = get_data(ticker)
-
-# Check if data is available
+# Validate data
 if df.empty:
-    st.error("Failed to load data (rate limit or invalid ticker). Try again later.")
+    st.error("⚠ Failed to load data. Possible reasons:\n- Invalid ticker\n- API rate limit reached. Try again later.")
 else:
     # Calculate moving averages
+    df['MA_20'] = df['Close'].rolling(window=20).mean()
     df['MA_50'] = df['Close'].rolling(window=50).mean()
     df['MA_100'] = df['Close'].rolling(window=100).mean()
-    df['MA_20'] = df['Close'].rolling(window=20).mean()
 
-    # Show raw data
-    with st.expander("Show Raw Data"):
+    # Show data in expandable section
+    with st.expander("📄 Show Raw Data"):
         st.dataframe(df)
 
-    # Plotting
+    # Plot chart
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.plot(df['Close'], label='Close Price', color='blue')
     ax.plot(df['MA_20'], label='20-day MA', color='green')
     ax.plot(df['MA_50'], label='50-day MA', color='orange')
-    ax.plot(df['MA_100'], label='100-day MA', color='red')
-    ax.set_title(f"{ticker} Stock Price & Moving Averages")
-    ax.set_xlabel("Date")
-    ax.set_ylabel("Price (USD)")
-    ax.legend()
-    st.pyplot(fig)
+    ax.plot(df['MA_100'], label='100-day MA_]()
