@@ -7,12 +7,12 @@ ticker = 'AAPL'
 df = yf.download(ticker, start='2020-01-01', end='2024-01-01')
 
 # plotting time series data
-plt.figure(figsize=(10, 5))
-plt.plot(df['Close'], label='Close Price')
-plt.title(f'{ticker} Stock Price')
-plt.xlabel('Date')
-plt.ylabel('Price (USD)')
-plt.legend()
+#plt.figure(figsize=(10, 5))
+#plt.plot(df['Close'], label='Close Price')
+#plt.title(f'{ticker} Stock Price')
+#plt.xlabel('Date')
+#plt.ylabel('Price (USD)')
+#plt.legend()
 #plt.show()
 
 
